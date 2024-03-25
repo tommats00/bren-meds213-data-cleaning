@@ -1,4 +1,4 @@
-# Cleaning the snow shoe survey data 
+# Cleaning the shorebird survey data 
 
 
 ## The data set
