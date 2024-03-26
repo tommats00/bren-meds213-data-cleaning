@@ -111,7 +111,6 @@ We have two values above 100, with an interesting 470%! ☃️
 No negative value detected.
 
 
-
 ## Species data
 
 ### Data exploration
