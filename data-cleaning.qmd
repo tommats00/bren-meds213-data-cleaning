@@ -185,7 +185,6 @@ species_presence <- species_presence %>%
   select(-c(Num_observers, All_obs_reported, Observer_hours, species_count))
 ```
 
-
 Last but not least, let's have a look at our species list
 
 ```{r}
@@ -196,7 +195,7 @@ species_presence %>%
 
 We have 319 species observed in this table
 
-Let's write the new table to a csv file
+Let's write the presence table to a csv file:
 
 ```{r}
 write_csv(species_presence, file.path(datadir_processed, "species_presence"))
