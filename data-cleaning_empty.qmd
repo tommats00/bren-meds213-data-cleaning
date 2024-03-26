@@ -1,0 +1,123 @@
+---
+title: "Data Cleaning"
+format: html
+---
+
+```{r}
+#| message: false  
+
+# Libaries
+library(tidyverse)
+
+# file names
+datadir_raw <- "data/raw/"
+
+species_file <- "species.csv"
+
+snowsurvey_file <- "ASDN_Snow_survey.csv"
+```
+
+
+## Data Exploration
+
+Import the snow survey
+
+```{r}
+# Import the species
+snowsurvey_csv <- read_csv(file.path(datadir_raw, snowsurvey_file))
+
+glimpse(snowsurvey_csv)
+
+```
+Ok, the types are not what we were expecting for the percentages of cover. Let's find out where it is coming from:
+
+```{r}
+
+```
+Let's focus on the non-numeric values:
+
+```{r}
+
+```
+
+Ok, we found our problematic values that are not numeric. There are a non-negligible number of cells with a dot as value. There is no mention of using this symbol in the metadata. We should probably have a look at those rows
+
+```{r}
+
+```
+
+Interestingly, when there is a "dot" for snow cover, it is also the case for all the other covers. Let's replace them all with NA since there is no supplemental information in the provided metadata
+
+```{r}
+
+```
+
+We will now tackle the other problematic values:
+
+The problem is similarwith "-", let's set it to NA
+
+```{r}
+
+```
+
+"n/a" is pretty clear regarding how to fix it:
+
+```{r}
+
+```
+
+"unk" is probably an abbreviation for unknown:
+
+```{r}
+
+```
+
+Finally we will set "<1" as zero:
+
+```{r}
+
+```
+
+Now we can test if we can transform the column:
+
+```{r}
+
+```
+
+Ok we can do the transformation
+
+```{r}
+
+```
+
+Yeah we have finally a numeric column. Now we can verify that all the values are between 0 and 100:
+
+```{r}
+
+```
+
+We have two values above 100, with an interesting 470%! ☃️
+
+```{r}
+
+```
+
+No negative value detected.
+
+
+
+
+
+
+
+
+
+
+Import the species csv files with the bird species information:
+
+```{r}
+# Import the species
+species_csv <- read_csv(paste0(datadir_raw, species_file))
+
+glimpse(species_csv)
+```
