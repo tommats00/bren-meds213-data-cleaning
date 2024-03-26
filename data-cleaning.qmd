@@ -6,7 +6,7 @@ format: html
 ```{r}
 #| message: false  
 
-# Libaries
+# Libraries
 library(tidyverse)
 
 # file names
@@ -18,7 +18,6 @@ species_file <- "ASDN_Daily_species.csv"
 
 snowsurvey_file <- "ASDN_Snow_survey.csv"
 ```
-
 
 
 ## Snow survey data
@@ -68,7 +67,7 @@ snowsurvey_fixed <- snowsurvey_csv %>%
 
 We will now tackle the other problematic values:
 
-The problem is similarwith "-", let's set it to NA
+The problem is similar with "-", let's set it to NA
 
 ```{r}
 snowsurvey_fixed <- snowsurvey_fixed %>% 
