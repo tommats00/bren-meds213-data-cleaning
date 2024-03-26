@@ -31,13 +31,14 @@ Import the snow survey
 snowsurvey_csv <- read_csv(file.path(datadir_raw, snowsurvey_file))
 
 glimpse(snowsurvey_csv)
-
 ```
+
 Ok, the types are not what we were expecting for the percentages of cover. Let's find out where it is coming from:
 
 ```{r}
 
 ```
+
 Let's focus on the non-numeric values:
 
 ```{r}
@@ -134,10 +135,13 @@ This data model is not convenient for a database, we will have to switch to a lo
 
 ### Data cleaning
 
+Switch to a long format:
+
 ```{r}
 
 ```
 
+Have a look at the species count:
 
 ```{r}
 
