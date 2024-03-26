@@ -105,19 +105,3 @@ We have two values above 100, with an interesting 470%! ☃️
 No negative value detected.
 
 
-
-
-
-
-
-
-
-
-Import the species csv files with the bird species information:
-
-```{r}
-# Import the species
-species_csv <- read_csv(paste0(datadir_raw, species_file))
-
-glimpse(species_csv)
-```
