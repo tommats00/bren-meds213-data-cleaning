@@ -31,23 +31,24 @@ Import the snow survey
 snowsurvey_csv <- read_csv(file.path(datadir_raw, snowsurvey_file))
 
 glimpse(snowsurvey_csv)
+
 ```
 
-Ok, the types are not what we were expecting for the percentages of cover. Let's find out where it is coming from:
+Ok, the types are not what we were expecting for the percentages of cover. Let's find out why:
 
 ```{r}
 
 ```
 
-Let's focus on the non-numeric values:
+Let's focus on the non-numeric values as a starting point:
 
 ```{r}
 
 ```
 
-### Date cleaning
+### Data cleaning
 
-Ok, we found our problematic values that are not numeric. There are a non-negligible number of cells with a dot as value. There is no mention of using this symbol in the metadata. We should probably have a look at those rows
+Ok, we found our problematic values that are not numeric. There are a non-negligible number of cells with a dot as value. There is no mention of using this symbol in the metadata. We should probably have a look at those rows:
 
 ```{r}
 
@@ -79,37 +80,51 @@ The problem is similar with "-", let's set it to NA
 
 ```
 
-Finally we will set "<1" as zero:
+Finally we will set "<1" as zero (quite arbitrary indeed):
 
 ```{r}
 
 ```
 
-Now we can test if we can transform the column:
+Now we can test if we now only have NAs as non numeric values in the column:
 
 ```{r}
 
 ```
 
-Ok we can do the transformation
+Ok, we can do the transformation:
 
 ```{r}
 
 ```
 
-Yeah we have finally a numeric column. Now we can verify that all the values are between 0 and 100:
+Yeah we have finally a numeric column 🎉. Now we can verify that all the values are between 0 and 100:
+
+```{r}
+ 
+```
+
+We have two values above 100, with an interesting 470%! ☃️ We should probavly set those values to NAs:
 
 ```{r}
 
 ```
 
-We have two values above 100, with an interesting 470%! ☃️
+Let's check for negative values:
 
 ```{r}
 
 ```
 
-No negative value detected.
+No negative value detected ✅
+
+Let's write the presence table to a csv file:
+
+```{r}
+write_csv(snowsurvey_fixed, file.path(datadir_processed, "snow_cover.csv"))
+```
+
+<hr> 
 
 
 ## Species data
@@ -119,10 +134,7 @@ No negative value detected.
 Import the species csv files with the bird species information:
 
 ```{r}
-# Import the species
-species_csv <- read_csv(paste0(datadir_raw, species_file))
 
-glimpse(species_csv)
 ```
 
 This data set is stored in a wide format where each specie has its own column. This means that every time we discover a new species we will have to add a column. In addition, a bunch of `0` are stored in this table but do not really provide any information. According to the metadata:
@@ -130,18 +142,16 @@ This data set is stored in a wide format where each specie has its own column. T
 ```
 The number of individuals seen is recorded for each species, except when individuals were not counted but the species was present (typically for very abundant species), an "X" is shown. The remaining columns list the full-name of species (birds and mammals) recorded for at least study site in at least one year.
 ```
+
 This data model is not convenient for a database, we will have to switch to a long format.
 
 
 ### Data cleaning
 
-Switch to a long format:
-
 ```{r}
 
 ```
 
-Have a look at the species count:
 
 ```{r}
 
@@ -165,11 +175,13 @@ Last but not least, let's have a look at our species list
 
 ```
 
-We have 319 species observed in this table
+We have 319 species observed in this table. The "convention" seems to be that `_` are used to separate the different parts of a name. Note that it is not clear what type of nomenclature reference is used to pull those names from.
 
 Let's write the presence table to a csv file:
 
 ```{r}
-write_csv(species_presence, file.path(datadir_processed, "species_presence"))
+write_csv(species_presence, file.path(datadir_processed, "species_presence.csv"))
 ```
+
+
 
