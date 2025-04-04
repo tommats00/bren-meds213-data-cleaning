@@ -7,7 +7,10 @@ format: html
 #| message: false  
 
 # Libraries
-library(tidyverse)
+library(dplyr)
+library(tidyr)
+library(readr)
+library(naniar)
 
 # file names
 datadir_raw <- file.path("data","raw")
@@ -32,6 +35,12 @@ snowsurvey_csv <- read_csv(file.path(datadir_raw, snowsurvey_file))
 
 glimpse(snowsurvey_csv)
 
+```
+
+Checking NAs
+```{r}
+snowsurvey_csv %>%
+  miss_var_summary()
 ```
 
 Ok, the types are not what we were expecting for the percentages of cover. Let's find out why:
