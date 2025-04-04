@@ -15,7 +15,7 @@ library(naniar)
 # file names
 datadir_raw <- file.path("data","raw")
 
-datadir_processed <- file.path("data", "processed/")
+datadir_processed <- file.path("data", "processed")
 
 species_file <- "ASDN_Daily_species.csv"
 
