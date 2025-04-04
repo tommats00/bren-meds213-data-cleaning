@@ -10,9 +10,9 @@ format: html
 library(tidyverse)
 
 # file names
-datadir_raw <- "data/raw/"
+datadir_raw <- file.path("data","raw")
 
-datadir_processed <- "data/processed/"
+datadir_processed <- file.path("data", "processed/")
 
 species_file <- "ASDN_Daily_species.csv"
 
@@ -218,6 +218,10 @@ We have 319 species observed in this table. The "convention" seems to be that `_
 Let's write the presence table to a csv file:
 
 ```{r}
+# check if the folder exists
+dir.create(datadir_processed, showWarnings = FALSE)
+
+# write the file
 write_csv(species_presence, file.path(datadir_processed, "species_presence.csv"))
 ```
 
