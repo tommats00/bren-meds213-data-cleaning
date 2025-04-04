@@ -3,6 +3,7 @@ title: "Data Cleaning"
 format: html
 ---
 
+
 ```{r}
 #| message: false  
 
@@ -10,9 +11,9 @@ format: html
 library(tidyverse)
 
 # file names
-datadir_raw <- "data/raw/"
+datadir_raw <- file.path("data","raw")
 
-datadir_processed <- "data/processed/"
+datadir_processed <- file.path("data", "processed/")
 
 species_file <- "ASDN_Daily_species.csv"
 
@@ -21,6 +22,10 @@ snowsurvey_file <- "ASDN_Snow_survey.csv"
 
 
 ## Snow survey data
+
+::: {.callout-note title="Our task and you have to accept it :)"}
+Our goal is to clean the `Snow_cover` column so it is ready to ingest in our database. Your mission is to find out potential problems and fix them!
+:::
 
 ### Data Exploration
 
@@ -52,15 +57,17 @@ snowsurvey_csv %>%
 
 ### Data cleaning
 
-Ok, we found our problematic values that are not numeric. There are a non-negligible number of cells with a dot as value. There is no mention of using this symbol in the metadata. We should probably have a look at those rows:
+Ok, we found our problematic values that are not numeric. There are a non-negligible number of cells with a dot as value. There is no mention of using this symbol in the metadata. We should probably have a look at those rows.
+
+#### `.` values
 
 ```{r}
 snowsurvey_csv %>%
-  filter(Snow_cover ==".") %>%
+  filter(Snow_cover == ".") %>%
   View()
 ```
 
-Interestingly, when there is a "dot" for snow cover, it is also the case for all the other covers. Let's replace them all with NA since there is no supplemental information in the provided metadata
+Interestingly, when there is a "dot" for snow cover, it is also the case for all the other covers. Let's replace those with NA since there is no supplemental information in the provided metadata about the use of dots
 
 ```{r}
 snowsurvey_fixed <- snowsurvey_csv %>%
@@ -69,18 +76,37 @@ snowsurvey_fixed <- snowsurvey_csv %>%
 
 ```
 
-We will now tackle the other problematic values:
+#### `-` values
 
-The problem is similar with "-", let's set it to NA
+Is he problem is similar with "-"?
+
+```{r}
+snowsurvey_csv %>%
+  filter(Snow_cover == "-") %>%
+  View()
+```
+
+
+let's set it to NA:
 
 ```{r}
 snowsurvey_fixed <- snowsurvey_fixed %>%
   # filter(Snow_cover == "-") %>%
   mutate(Snow_cover = ifelse(Snow_cover=="-", NA, Snow_cover))
-
 ```
 
-"n/a" is pretty clear regarding how to fix it:
+#### `n/a` values
+
+"n/a" seems pretty clear regarding how to fix it, but let's have a look first:
+
+```{r}
+snowsurvey_csv %>%
+  filter(Snow_cover == "n/a") %>%
+  View()
+```
+
+
+Same pattern, let's substitute with NA:
 
 ```{r}
 snowsurvey_fixed <- snowsurvey_fixed %>%
@@ -88,7 +114,16 @@ snowsurvey_fixed <- snowsurvey_fixed %>%
   mutate(Snow_cover = ifelse(Snow_cover=="n/a", NA, Snow_cover))
 ```
 
-"unk" is probably an abbreviation for unknown:
+#### `unk` values
+
+What about "unk"? It is probably an abbreviation for unknown:
+
+```{r}
+snowsurvey_csv %>%
+  filter(Snow_cover == "unk") %>%
+  View()
+```
+
 
 ```{r}
 snowsurvey_fixed <- snowsurvey_fixed %>%
@@ -96,13 +131,24 @@ snowsurvey_fixed <- snowsurvey_fixed %>%
   mutate(Snow_cover = ifelse(Snow_cover=="unk", NA, Snow_cover))
 ```
 
-Finally we will set "<1" as zero (quite arbitrary indeed):
+#### `<1` values
+
+Finally What should we replace"<1" with?
+
+```{r}
+snowsurvey_csv %>%
+  filter(Snow_cover == "<1") %>%
+  View()
+```
 
 ```{r}
 snowsurvey_fixed <- snowsurvey_fixed %>%
   # filter(Snow_cover == "<1") %>%
   mutate(Snow_cover = ifelse(Snow_cover=="<1", "0", Snow_cover))
 ```
+
+
+### Going numeric
 
 Now we can test if we now only have NAs as non numeric values in the column:
 
@@ -121,7 +167,12 @@ snowsurvey_fixed <- snowsurvey_fixed %>%
 glimpse(snowsurvey_fixed)
 ```
 
-Yeah we have finally a numeric column 🎉. Now we can verify that all the values are between 0 and 100:
+Yeah we have finally a numeric column 🎉. 
+
+
+### Further cleaning
+
+We are dealing with percentages, so we should verify that all the values are between 0 and 100:
 
 ```{r}
  snowsurvey_fixed %>%
@@ -147,6 +198,10 @@ No negative value detected ✅
 Let's write the presence table to a csv file:
 
 ```{r}
+# check if the folder exists
+dir.create(datadir_processed, showWarnings = FALSE)
+
+# write the file
 write_csv(snowsurvey_fixed, file.path(datadir_processed, "snow_cover.csv"))
 ```
 
@@ -154,6 +209,10 @@ write_csv(snowsurvey_fixed, file.path(datadir_processed, "snow_cover.csv"))
 
 
 ## Species data
+
+::: {.callout-note title="Our task and you have to accept it :)"}
+Our goal is to reformat the species data so it is ready to ingest in our database. Your mission is to find out potential problems and fix them!
+:::
 
 ### Data exploration
 
@@ -165,7 +224,7 @@ species_csv <- read_csv(file.path(datadir_raw, species_file))
 glimpse(species_csv)
 ```
 
-This data set is stored in a wide format where each specie has its own column. This means that every time we discover a new species we will have to add a column. In addition, a bunch of `0` are stored in this table but do not really provide any information. According to the metadata:
+This data set is stored in a wide format where each species has its own column. This means that every time we discover a new species we will have to add a column. In addition, a bunch of `0` are stored in this table but do not really provide any information. According to the metadata:
 
 ```
 The number of individuals seen is recorded for each species, except when individuals were not counted but the species was present (typically for very abundant species), an "X" is shown. The remaining columns list the full-name of species (birds and mammals) recorded for at least study site in at least one year.
@@ -220,6 +279,10 @@ We have 319 species observed in this table. The "convention" seems to be that `_
 Let's write the presence table to a csv file:
 
 ```{r}
+# check if the folder exists
+dir.create(datadir_processed, showWarnings = FALSE)
+
+# write the file
 write_csv(species_presence, file.path(datadir_processed, "species_presence.csv"))
 ```
 
