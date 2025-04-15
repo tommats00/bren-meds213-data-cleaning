@@ -40,6 +40,7 @@ snow_survey %>%
 From the exploration, it seems that there are `-` and `.` as values. Let's take a look at what columns will return an `NA` if they can't be converted to a numeric value. There may be more besides the two described above.
 
 ```{r}
+# View non-numeric values in the column 
 snow_survey %>% 
   count(Water_cover) %>% 
   filter(is.na(as.numeric(Water_cover)))
@@ -50,15 +51,14 @@ We do have more non-numeric values than we originally thought. Each of these uni
 ```{r}
 # Convert non numerics to NAs
 snow_survey_fixed <- snow_survey %>% 
-  mutate(Water_cover = ifelse(Water_cover == "-", NA, Water_cover),
-         Water_cover = ifelse(Water_cover == ".", NA, Water_cover),
-         Water_cover = ifelse(Water_cover == "n/a", NA, Water_cover),
-         Water_cover = ifelse(Water_cover == "unk", NA, Water_cover))
+  mutate(Water_cover = ifelse(Water_cover %in% c("-", ".", "n/a", "unk"), 
+                              NA, Water_cover))
 ```
 
 Now, let's test that we have only NAs as non-numeric values
 
 ```{r}
+# View non-numerics to check the conversion worked
 snow_survey_fixed %>% 
   count(Water_cover) %>% 
   filter(is.na(as.numeric(Water_cover)))
@@ -67,6 +67,7 @@ snow_survey_fixed %>%
 Everything looks great, so let's convert the column to a numeric.
 
 ```{r}
+# Convert Water cover to numeric column 
 snow_survey_fixed <- snow_survey_fixed %>% 
   mutate(Water_cover = as.numeric(Water_cover))
 ```
@@ -85,12 +86,10 @@ snow_survey_fixed %>%
 We have the same non numeric values so we can use the same code as above.
 
 ```{r}
-# Replace non-numeric values with NA
+# Convert non numerics to NAs
 snow_survey_fixed <- snow_survey_fixed %>% 
-  mutate(Land_cover = ifelse(Land_cover == "-", NA, Land_cover),
-         Land_cover = ifelse(Land_cover == ".", NA, Land_cover),
-         Land_cover = ifelse(Land_cover == "n/a", NA, Land_cover),
-         Land_cover = ifelse(Land_cover == "unk", NA, Land_cover))
+  mutate(Land_cover = ifelse(Land_cover %in% c("-", ".", "n/a", "unk"), 
+                             NA, Water_cover))
 
 
 # Check if NA is the only non-numeric value 
@@ -102,6 +101,7 @@ snow_survey_fixed %>%
 The non-numeric values have been successfully converted to `NA` values. We can now convert the column to numeric.
 
 ```{r}
+# Convert Land cover to a numeric column
 snow_survey_fixed <- snow_survey_fixed %>% 
   mutate(Land_cover = as.numeric(Land_cover))
 ```
@@ -111,8 +111,18 @@ snow_survey_fixed <- snow_survey_fixed %>%
 Now that these three columsn are cleaned, let's recompute the `Total_cover`. Since, we only have numeric percentages, when we recompute we should not have any non-numeric values besides `NA`.
 
 ```{r}
-snow_survery_fixed <- snow_survey_fixed %>% 
-  mutate(Total_cover = Snow_cover + Water_cover + Land_cover)
+# Recalculate total cover 
+snow_survey_fixed <- snow_survey_fixed %>% 
+  rowwise() %>% 
+  mutate(Total_cover_recalc = sum(c(Snow_cover, Water_cover, Land_cover), 
+                                  na.rm = TRUE)) %>% 
+  ungroup() %>% 
+  mutate(Total_cover_recalc = ifelse(c(Snow_cover, Water_cover, Land_cover) == is.na(), NA, Total_cover_recalc))
+
+# Check to see if total cover has only NA non-numeric values
+snow_survey_fixed %>% 
+  count(Total_cover_recalc) %>% 
+  filter(is.na(Total_cover_recalc))
 ```
 
 ### Output new df to a csv file
