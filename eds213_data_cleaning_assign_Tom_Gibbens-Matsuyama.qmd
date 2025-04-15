@@ -1,0 +1,130 @@
+---
+title: "Data Cleaning Assignment"
+author: "Tom Gibbens-Matsuyama"
+format: html
+editor: visual
+---
+
+### Introduction
+
+This exercise will demonstrate the methods used to clean two datasets `Water_cover` and `Land_cover`. Each dataset will be cleaned one at a time instead of simultaneously.
+
+### Load libraries & Data
+
+```{r}
+# Load libraries
+library(tidyverse)
+library(here)
+
+# Load data
+snow_survey <- read_csv(here("data", "processed", "snow_cover.csv"))
+```
+
+### Water cover cleaning
+
+Let's take a look at what kind of variable type we have for our `water_cover` column.
+
+```{r}
+# Use glimpse to view types
+glimpse(snow_survey)
+```
+
+From using `glimpse` we can see that `Water_cover` is a type character. As these are supposed to be representing percentages, this is not good. Let's take a closer look to see why this might be happening.
+
+```{r}
+# Let's view all possible values for Water cover
+snow_survey %>% 
+  count(Water_cover)
+```
+
+From the exploration, it seems that there are `-` and `.` as values. Let's take a look at what columns will return an `NA` if they can't be converted to a numeric value. There may be more besides the two described above.
+
+```{r}
+snow_survey %>% 
+  count(Water_cover) %>% 
+  filter(is.na(as.numeric(Water_cover)))
+```
+
+We do have more non-numeric values than we originally thought. Each of these unique values can be converted to an `NA` .
+
+```{r}
+# Convert non numerics to NAs
+snow_survey_fixed <- snow_survey %>% 
+  mutate(Water_cover = ifelse(Water_cover == "-", NA, Water_cover),
+         Water_cover = ifelse(Water_cover == ".", NA, Water_cover),
+         Water_cover = ifelse(Water_cover == "n/a", NA, Water_cover),
+         Water_cover = ifelse(Water_cover == "unk", NA, Water_cover))
+```
+
+Now, let's test that we have only NAs as non-numeric values
+
+```{r}
+snow_survey_fixed %>% 
+  count(Water_cover) %>% 
+  filter(is.na(as.numeric(Water_cover)))
+```
+
+Everything looks great, so let's convert the column to a numeric.
+
+```{r}
+snow_survey_fixed <- snow_survey_fixed %>% 
+  mutate(Water_cover = as.numeric(Water_cover))
+```
+
+### Land Cover
+
+Now that `Water_cover` is fixed, let's take a look at `Land_cover` . We will be using a very similar process to clean the data. Also, we will be using the `snow_survey_fixed` dataframe as it contains the cleaned `Water_cover` and `Snow_cover` columns. From the `glimpse` in the beginning we know that `Land_cover` is a character variable. Let's continue with a similar workflow as `Water_cover`.
+
+```{r}
+# View all non numeric values
+snow_survey_fixed %>% 
+  count(Land_cover) %>% 
+  filter(is.na(as.numeric(Land_cover)))
+```
+
+We have the same non numeric values so we can use the same code as above.
+
+```{r}
+# Replace non-numeric values with NA
+snow_survey_fixed <- snow_survey_fixed %>% 
+  mutate(Land_cover = ifelse(Land_cover == "-", NA, Land_cover),
+         Land_cover = ifelse(Land_cover == ".", NA, Land_cover),
+         Land_cover = ifelse(Land_cover == "n/a", NA, Land_cover),
+         Land_cover = ifelse(Land_cover == "unk", NA, Land_cover))
+
+
+# Check if NA is the only non-numeric value 
+snow_survey_fixed %>% 
+  count(Land_cover) %>% 
+  filter(is.na(as.numeric(Land_cover)))
+```
+
+The non-numeric values have been successfully converted to `NA` values. We can now convert the column to numeric.
+
+```{r}
+snow_survey_fixed <- snow_survey_fixed %>% 
+  mutate(Land_cover = as.numeric(Land_cover))
+```
+
+### Total Cover
+
+Now that these three columsn are cleaned, let's recompute the `Total_cover`. Since, we only have numeric percentages, when we recompute we should not have any non-numeric values besides `NA`.
+
+```{r}
+snow_survery_fixed <- snow_survey_fixed %>% 
+  mutate(Total_cover = Snow_cover + Water_cover + Land_cover)
+```
+
+### Output new df to a csv file
+
+```{r}
+# create path
+datadir_processed <- file.path("data", "processed/")
+
+# check if the folder exists
+dir.create(datadir_processed, showWarnings = FALSE)
+
+# write the file
+write_csv(snow_survery_fixed, file.path(datadir_processed, "all_cover_fixed_Tom_Gibbens_Matsuyama.csv"))
+
+```
