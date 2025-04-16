@@ -108,22 +108,80 @@ snow_survey_fixed <- snow_survey_fixed %>%
 
 ### Total Cover
 
-Now that these three columsn are cleaned, let's recompute the `Total_cover`. Since, we only have numeric percentages, when we recompute we should not have any non-numeric values besides `NA`.
+Now that these three columns are cleaned, let's recompute the total percentage with a new column called `Total_cover_recalc`. Since, we only have numeric percentages, when we recompute we should not have any non-numeric values besides `NA`. If values are present in any of the three columns, then the `Total_cover_recalc` will have a vale. If all three columns have an `NA`, then an `NA` will be computed for as the newly calculated value.
 
 ```{r}
 # Recalculate total cover 
-snow_survey_fixed <- snow_survey_fixed %>% 
-  rowwise() %>% 
-  mutate(Total_cover_recalc = sum(c(Snow_cover, Water_cover, Land_cover), 
-                                  na.rm = TRUE)) %>% 
-  ungroup() %>% 
-  mutate(Total_cover_recalc = ifelse(c(Snow_cover, Water_cover, Land_cover) == is.na(), NA, Total_cover_recalc))
+# snow_survey_fixed <- snow_survey_fixed %>% 
+#   rowwise() %>% 
+#   mutate(Total_cover_recalc = sum(c(Snow_cover, Water_cover, Land_cover), 
+#                                   na.rm = TRUE)) %>% 
+#   ungroup() %>% 
+#   mutate(Total_cover_recalc = ifelse(c(Snow_cover, Water_cover, Land_cover) == is.na(), NA, Total_cover_recalc))
 
-# Check to see if total cover has only NA non-numeric values
+
+snow_survey_fixed <- snow_survey_fixed %>% 
+  
+  # Use rowwise to loop over each row
+  rowwise() %>% 
+  
+  # Create new column for total cover
+  mutate(
+    
+    # If all three columns have an NA, then total_cover_recalc = NA, else sum columns as expected 
+    Total_cover_recalc = if (all(is.na(c(Snow_cover, Water_cover, Land_cover)))) {
+      
+      # NA value code
+      NA_real_
+      
+      # ELSE...
+    } else {
+      sum(Snow_cover, Water_cover, Land_cover, na.rm = TRUE)
+    }
+  
+  ) %>%
+  
+  # Ungroup for best practice
+  ungroup()
+
+
+# Check to see if total cover recalc has only NA non-numeric values
 snow_survey_fixed %>% 
   count(Total_cover_recalc) %>% 
   filter(is.na(Total_cover_recalc))
 ```
+
+### Comparing Total_cover and Total_cover_recalc
+
+We are interested in comparing the original total cover and the newly calculated total cover column. This Let's view the rows that don't have the same values
+
+```{r}
+snow_survey_fixed %>% 
+  filter(Total_cover != Total_cover_recalc) %>% 
+  View()
+```
+
+From viewing this information, there are over 33,000 rows for these two columns that don't match. That is a huge number considering that our original data doesn't even have 43,000 rows. From just scrolling through this new dataframe, we can see that the values for original calculation of `Total_cover` are all over the place. It is safe to say that this column is unreliable and can be taken out.
+
+```{r}
+snow_survey_fixed <- snow_survey_fixed %>% 
+  select(-Total_cover)
+```
+
+We are also interested in to see if any columns in our newly calculated total cover are greater than 100 and less than 0. We should technically only have values greater than or equal to 0 and less than or equal to 100 because they represent percentages.
+
+```{r}
+
+snow_survey_fixed %>% 
+  
+  # Filter for data over 100 OR less than 0 
+  filter(Total_cover_recalc > 100 | Total_cover_recalc < 0) %>% 
+  
+  # Pipe into view
+  View()
+```
+
+There are almost 4,600 rows that fit the criteria above. This is not good as that is about 10% of the entire dataframe. We could potentially change these values to 0 or 100 as they represent the minimum and maximum percentage, but I am going to keep it as is.
 
 ### Output new df to a csv file
 
