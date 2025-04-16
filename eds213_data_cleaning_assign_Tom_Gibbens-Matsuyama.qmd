@@ -111,15 +111,7 @@ snow_survey_fixed <- snow_survey_fixed %>%
 Now that these three columns are cleaned, let's recompute the total percentage with a new column called `Total_cover_recalc`. Since, we only have numeric percentages, when we recompute we should not have any non-numeric values besides `NA`. If values are present in any of the three columns, then the `Total_cover_recalc` will have a vale. If all three columns have an `NA`, then an `NA` will be computed for as the newly calculated value.
 
 ```{r}
-# Recalculate total cover 
-# snow_survey_fixed <- snow_survey_fixed %>% 
-#   rowwise() %>% 
-#   mutate(Total_cover_recalc = sum(c(Snow_cover, Water_cover, Land_cover), 
-#                                   na.rm = TRUE)) %>% 
-#   ungroup() %>% 
-#   mutate(Total_cover_recalc = ifelse(c(Snow_cover, Water_cover, Land_cover) == is.na(), NA, Total_cover_recalc))
-
-
+# Recalculating Total cover
 snow_survey_fixed <- snow_survey_fixed %>% 
   
   # Use rowwise to loop over each row
@@ -181,7 +173,17 @@ snow_survey_fixed %>%
   View()
 ```
 
-There are almost 4,600 rows that fit the criteria above. This is not good as that is about 10% of the entire dataframe. We could potentially change these values to 0 or 100 as they represent the minimum and maximum percentage, but I am going to keep it as is.
+There are almost 4,600 rows that fit the criteria above. This is not good as that is about 10% of the entire dataframe. Since relational databases are strict with their rules I am going to filter out these rows since they are not good representations of a percentage.
+
+```{r}
+# Filter for only rows between 0 and 100
+snow_survey_fixed <- snow_survey_fixed %>% 
+  filter(Total_cover_recalc <= 100 & Total_cover_recalc >= 0 | is.na(Total_cover_recalc)) 
+
+unique(snow_survey_fixed$Total_cover_recalc)
+```
+
+The above code will filter out rows that are outside those bounds and keeps rows that have `NA`.
 
 ### Output new df to a csv file
 
@@ -193,6 +195,6 @@ datadir_processed <- file.path("data", "processed/")
 dir.create(datadir_processed, showWarnings = FALSE)
 
 # write the file
-write_csv(snow_survery_fixed, file.path(datadir_processed, "all_cover_fixed_Tom_Gibbens_Matsuyama.csv"))
+write_csv(snow_survey_fixed, file.path(datadir_processed, "all_cover_fixed_Tom_Gibbens_Matsuyama.csv"))
 
 ```
