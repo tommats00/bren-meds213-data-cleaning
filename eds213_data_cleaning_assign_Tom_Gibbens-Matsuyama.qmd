@@ -3,6 +3,9 @@ title: "Data Cleaning Assignment"
 author: "Tom Gibbens-Matsuyama"
 format: html
 editor: visual
+execute:
+  warning: false
+  message: false
 ---
 
 ### Introduction
@@ -148,6 +151,7 @@ snow_survey_fixed %>%
 We are interested in comparing the original total cover and the newly calculated total cover column. This Let's view the rows that don't have the same values
 
 ```{r}
+# View where the original total cover does not equal the newly calculated 
 snow_survey_fixed %>% 
   filter(Total_cover != Total_cover_recalc) %>% 
   View()
@@ -156,6 +160,7 @@ snow_survey_fixed %>%
 From viewing this information, there are over 33,000 rows for these two columns that don't match. That is a huge number considering that our original data doesn't even have 43,000 rows. From just scrolling through this new dataframe, we can see that the values for original calculation of `Total_cover` are all over the place. It is safe to say that this column is unreliable and can be taken out.
 
 ```{r}
+# Get rid of original total cover column 
 snow_survey_fixed <- snow_survey_fixed %>% 
   select(-Total_cover)
 ```
@@ -179,11 +184,9 @@ There are almost 4,600 rows that fit the criteria above. This is not good as tha
 # Filter for only rows between 0 and 100
 snow_survey_fixed <- snow_survey_fixed %>% 
   filter(Total_cover_recalc <= 100 & Total_cover_recalc >= 0 | is.na(Total_cover_recalc)) 
-
-unique(snow_survey_fixed$Total_cover_recalc)
 ```
 
-The above code will filter out rows that are outside those bounds and keeps rows that have `NA`.
+The above code will filter out rows that are outside those bounds and keeps rows that have `NA`. With this final filter, our data has been properly cleaned. Let's now download the data and output to a new CSV.
 
 ### Output new df to a csv file
 
