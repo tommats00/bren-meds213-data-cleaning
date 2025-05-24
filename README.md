@@ -17,3 +17,49 @@ Data on climatic conditions, prey abundance, and predators were also collected. 
 
 See `01_ASDN_Readme.txt` provided in the [course data repository](https://github.com/UCSB-Library-Research-Data-Services/bren-meds213-spring-2024-class-data) for full metadata information about this data set.
 
+### Purpose 
+The purpose of this repository is to exercise data science techniques for data cleaning and metadata creation for the `ASDN_Snow_survey.csv` data. 
+
+### File Structure
+
+```
+├── README.md
+├── .gitignore
+├── eds213_data_cleaning_assign_Tom_Gibbens-Matsuyama.qmd   # File for data cleaning
+└── data/
+    ├── processed/                                          # Processed data/
+    │   ├── all_cover_fixed_Tom_Gibbens-Matsuyama.csv       # Fully cleaned snow survey data
+    │   └── snow_cover.csv                                  # Partially cleaned
+    │   └── species_present.csv                             # Species identified at site 
+    └── raw/                                                # Prepprocessed data/
+        ├── 01_ASDN_Readme.txt                              # Original metadata
+        ├── ASDN_Daily_Species.csv                          # Species survey data
+        └── ASDN_Snow_Survey                                # Snow cover survey data
+```
+Other data related data not contained within this repository are the following: `Bird_captures`, `Bird_eggs`, `Bird_nests`, `Bird_resights`, `Bird_sexes`, `Camp_info`, `Camp_assignment`, `Daily_pred_lemm`, `Daily_species`, `Daily_species_effort`, `Geodata`, `Inverts`, `Lemming_counts`,  `Lemming_nests`, `Lemming_trap`, `Pred_nests`, `Pred_point_counts`, `Study_Plot`, `Surface_water`, `Weather_HOBO`, `Weather_precip_manual`, `Weather_snow_manual`. 
+
+Metadata for these files can be found on the `01_ASDN_Readme.txt` file located in the `raw` folder. 
+
+#### Mutiple Versions
+Data was processed from the MEDS EDS-213 Repository: [bren-meds213-data-cleaning](https://github.com/UCSB-Library-Research-Data-Services/bren-meds213-data-cleaning)
+
+#### Metadata
+Metadata for the `all_cover_fixed_Tom_Gibbens-Matsuyama.csv` file in this repository is as follows:
+
+**Number of variables:** 11
+
+**Number of rows:** 38,241
+
+| Variable         | Description                        | Value               |
+|---------------|------------------------------------|-----------------------|
+| Site          | Four letter abbreviation for where data was collected                | char      |
+| Source        | Where the data comes from          | Kaggle                |
+| Size          | Number of records and fields       | 891 rows, 12 columns  |
+| License       | Usage license                      | CC0: Public Domain    |
+| Last Updated  | Date of last update                | 2025-05-01            |
+
+
+
+
+
+
