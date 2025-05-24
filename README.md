@@ -52,12 +52,17 @@ Metadata for the `all_cover_fixed_Tom_Gibbens-Matsuyama.csv` file in this reposi
 
 | Variable         | Description                        | Value               |
 |---------------|------------------------------------|-----------------------|
-| Site          | Four letter abbreviation for where data was collected                | char      |
-| Source        | Where the data comes from          | Kaggle                |
-| Size          | Number of records and fields       | 891 rows, 12 columns  |
-| License       | Usage license                      | CC0: Public Domain    |
-| Last Updated  | Date of last update                | 2025-05-01            |
-
+| Site          | Four letter abbreviation for where data were collected                | Character      |
+| Year        | Year data were collected          | Numeric                |
+| Date          | Date data were collected        | Character |
+| Plot       | Four letter abbreviation for where data were collected within each Site                      | Character  |
+| Location  | Where data were collected within Each Plot                | Character            |
+| Snow_cover         | Percentage of snow cover                         | Numeric               |
+| Water_cover          | Percentage of water cover               | Numeric      |
+| Land_cover        | Percentage of land cover          | Numeric                |
+| Observer          | Person who collected the data       | Character  |
+| Notes       | Any notes by the Observer                      | Character   |
+| Total_cover_recalc  | Percentage of total cover recalculated from cleaned data               | Numeric           |
 
 
 
